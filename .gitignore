@@ -74,3 +74,4 @@ __pycache__/
 *.so
 .Python
 build/
+venv/

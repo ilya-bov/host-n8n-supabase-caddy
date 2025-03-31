@@ -1,10 +1,7 @@
 """
 Update environment variables by copying from .env.example and updating with secure values.
 """
-
-import os
 import re
-import sys
 import shutil
 from pathlib import Path
 from datetime import datetime
@@ -13,74 +10,114 @@ from datetime import datetime
 from scripts.generate_env_vars import generate_env_vars
 
 
+def read_env_file(file_path):
+    """Read and parse environment variables from a file into a dictionary."""
+    env_vars = {}
+    with open(file_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                env_vars[key.strip()] = value.strip()
+    return env_vars
+
+
+def update_env_content(content, variables):
+    """Update environment variables in content string with new values."""
+    updated_content = content
+    for key, value in variables.items():
+        pattern = re.compile(f"^{re.escape(key)}=.*$", re.MULTILINE)
+        if pattern.search(updated_content):
+            updated_content = pattern.sub(f"{key}={value}", updated_content)
+            print(f"Updated {key}")
+        else:
+            if updated_content and not updated_content.endswith('\n'):
+                updated_content += '\n'
+            updated_content += f"{key}={value}\n"
+            print(f"Added {key}")
+    return updated_content
+
+
+def create_env_backup():
+    """Create a backup of the current .env file."""
+    env_path = Path(".env")
+    backup_path = Path(f".env.backup.{datetime.now().strftime('%Y%m%d%H%M%S')}")
+    shutil.copy2(env_path, backup_path)
+    print(f"Created backup of .env at {backup_path}")
+
+
+def get_user_confirmation():
+    """Get user confirmation for updating existing .env file."""
+    print("Warning: .env file already exists")
+    print("Updating environment variables may impact access to the database")
+    return input("Do you want to continue? (y/N): ").strip().lower() == 'y'
+
+
+def update_supabase_env():
+    """Update Supabase environment variables from local .env."""
+    supabase_dir = Path("supabase")
+    if not supabase_dir.exists():
+        return None
+
+    supabase_env_example = supabase_dir / "docker" / ".env.example"
+    supabase_env = supabase_dir / "docker" / ".env"
+    local_env = Path(".env")
+
+    if not all(path.exists() for path in [supabase_env_example, local_env]):
+        print("Warning: Required Supabase environment files not found")
+        return None
+
+    print("Copying Supabase .env.example to .env...")
+    shutil.copy2(supabase_env_example, supabase_env)
+
+    local_vars = read_env_file(local_env)
+    
+    with open(supabase_env, 'r') as f:
+        supabase_content = f.read()
+    
+    updated_content = update_env_content(supabase_content, local_vars)
+    
+    with open(supabase_env, 'w') as f:
+        f.write(updated_content)
+    
+    print("Supabase environment variables updated successfully")
+
+
 def update_env():
-    """Update environment variables.
-    
-    - Always copies from .env.example to .env (after confirmation if .env exists)
-    - Generates new secure variables and updates them in .env
-    
-    Returns:
-        dict: Dictionary of updated environment variables or None if operation canceled
-    """
+    """Update environment variables."""
     env_path = Path(".env")
     env_example_path = Path(".env.example")
     
-    # Check if .env.example exists
     if not env_example_path.exists():
         print("Error: .env.example file not found")
         print("Please create an .env.example file first")
         return None
     
-    # If .env already exists, ask for confirmation and create backup
     if env_path.exists():
-        # Ask for confirmation
-        print("Warning: .env file already exists")
-        print("Updating environment variables may impact access to the database")
-        confirmation = input("Do you want to continue? (y/N): ").strip().lower()
-        
-        if confirmation != 'y':
+        if not get_user_confirmation():
             print("Operation canceled")
             return None
-        
-        # Create backup of current .env
-        backup_path = Path(f".env.backup.{datetime.now().strftime('%Y%m%d%H%M%S')}")
-        shutil.copy2(env_path, backup_path)
-        print(f"Created backup of .env at {backup_path}")
+        create_env_backup()
     
-    # Always copy .env.example to .env
     print(f"Copying .env.example to .env")
     shutil.copy2(env_example_path, env_path)
     
-    # Generate new environment variables
     new_vars = generate_env_vars()
     
-    # Read current .env content (which is now from .env.example)
     with open(env_path, 'r') as f:
         env_content = f.read()
     
-    # Update or add new variables to .env
-    for key, value in new_vars.items():
-        # Check if the variable already exists in the file
-        pattern = re.compile(f"^{re.escape(key)}=.*$", re.MULTILINE)
-        if pattern.search(env_content):
-            # Replace existing variable
-            env_content = pattern.sub(f"{key}={value}", env_content)
-            print(f"Updated {key} in .env")
-        else:
-            # Add new variable
-            if env_content and not env_content.endswith('\n'):
-                env_content += '\n'
-            env_content += f"{key}={value}\n"
-            print(f"Added {key} to .env")
+    updated_content = update_env_content(env_content, new_vars)
     
-    # Write updated content back to .env
     with open(env_path, 'w') as f:
-        f.write(env_content)
+        f.write(updated_content)
     
     print(f"Environment variables updated in {env_path}")
+    
+    update_supabase_env()
+    
     return new_vars
 
 
 if __name__ == "__main__":
-    # Allow this file to be run directly for testing
     update_env()
