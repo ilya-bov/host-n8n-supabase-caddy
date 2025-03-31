@@ -2,6 +2,17 @@
 
 This project helps you set up a local development environment with N8N and Supabase using Docker.
 
+## Inspiration
+
+This project was inspired by:
+- [local-ai-packaged](https://github.com/coleam00/local-ai-packaged)
+- [n8n-io/self-hosted-ai-starter-kit](https://github.com/n8n-io/self-hosted-ai-starter-kit)
+
+While these projects are excellent, I didn't want to run the LLM locally and I needed something simpler that would allow me to:
+- Quickly start and stop the services
+- Generate new environment variables easily
+- Manage local development without complexity
+
 ## Requirements
 
 The project requires:
@@ -50,10 +61,9 @@ git config --global user.email "your.email@example.com"
 ## Setup
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd <project-directory>
-   ```
+
+
+   _If you don't already know how to do this just click "Code" top right and "Download ZIP"_
 
 2. **Create and activate virtual environment**
    
@@ -129,7 +139,7 @@ All commands should be run from the project root directory with the virtual envi
 After starting the services, you can access:
 - N8N: http://localhost:5678
 - Supabase Dashboard: http://localhost:8000
-- Supabase (from within N8N): http://host.docker.internal:8000
+- Supabase URL from within N8N: http://host.docker.internal:8000
 
 ## Troubleshooting
 
