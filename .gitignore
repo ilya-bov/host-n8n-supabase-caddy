@@ -62,3 +62,15 @@ Desktop.ini
 *.swp
 *.swo
 *~
+
+
+# Supabase
+supabase/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
