@@ -4,6 +4,7 @@ volumes:
 
 networks:
   n8n-network:
+  supabase-network:
 
 # Define reusable service configurations
 x-n8n: &service-n8n
@@ -27,7 +28,9 @@ services:
   postgres:
     image: postgres:16-alpine
     hostname: ${N8N_POSTGRES_HOST}
-    networks: ['n8n-network']
+    networks:
+      - n8n-network
+      - supabase-network
     restart: unless-stopped
     environment:
       - POSTGRES_USER=${N8N_POSTGRES_USER}
@@ -73,3 +76,8 @@ services:
         condition: service_healthy
       n8n-import:
         condition: service_completed_successfully
+    networks:
+      - n8n-network
+      - supabase-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
