@@ -2,6 +2,7 @@
 Update environment variables by copying from .env.example and updating with secure values.
 """
 import re
+import uuid
 import shutil
 from pathlib import Path
 from datetime import datetime
@@ -83,6 +84,11 @@ def update_supabase_env():
     print("Supabase environment variables updated successfully")
 
 
+def generate_project_name():
+    """Generate a unique project name."""
+    return f"n8n_supabase_{uuid.uuid4().hex[:8]}"
+
+
 def update_env():
     """Update environment variables."""
     env_path = Path(".env")
@@ -103,6 +109,7 @@ def update_env():
     shutil.copy2(env_example_path, env_path)
     
     new_vars = generate_env_vars()
+    new_vars['PROJECT_NAME'] = generate_project_name()
     
     with open(env_path, 'r') as f:
         env_content = f.read()

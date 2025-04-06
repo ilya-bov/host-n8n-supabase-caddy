@@ -2,18 +2,20 @@ from scripts.utils import run_command
 
 def start():
     """Start the project."""
-    # Start Supabase services
+    # Start Supabase services with project name
     print("Starting Supabase...")
     run_command([
         "docker", "compose",
         "-f", "supabase/docker/docker-compose.yml",
+        "-p", "${PROJECT_NAME}_supabase",
         "up", "-d"
     ])
 
-    # Start n8n services
+    # Start n8n services with project name
     print("Starting n8n...")
     run_command([
         "docker", "compose",
+        "-p", "${PROJECT_NAME}_n8n",
         "up", "-d"
     ])
 
@@ -28,6 +30,7 @@ def stop():
     print("Stopping n8n services...")
     run_command([
         "docker", "compose",
+        "-p", "${PROJECT_NAME}_n8n",
         "down"
     ], ignore_errors=True)
 
@@ -35,6 +38,7 @@ def stop():
     run_command([
         "docker", "compose",
         "-f", "supabase/docker/docker-compose.yml",
+        "-p", "${PROJECT_NAME}_supabase",
         "down"
     ], ignore_errors=True)
 
