@@ -49,7 +49,7 @@ def init():
     print("Project initialized successfully")
     print("\nYou can now:")
     print("1. Review the environment variables in .env")
-    print("2. Start the project using: python -m scripts.main start")
+    print("2. Start the project using: python -m script start")
 
 
 def reset():
