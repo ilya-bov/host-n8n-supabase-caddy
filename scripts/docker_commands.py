@@ -1,6 +1,5 @@
 import os
 import subprocess
-import json
 from scripts.utils import run_command
 
 def check_project_running(project_prefix):
@@ -20,7 +19,12 @@ def check_project_running(project_prefix):
 
 def start():
     """Start the project."""
-    project_name = os.getenv('PROJECT_NAME', 'n8n_supabase_default')
+    project_name = os.getenv('PROJECT_NAME')
+    if not project_name:
+        print("Error: PROJECT_NAME not found in environment")
+        print("Please make sure you have a .env file with PROJECT_NAME defined")
+        print("You can create one by running: python -m script update_env")
+        return
     
     # Check if either n8n or supabase services are already running
     if check_project_running(f"{project_name}_n8n") or check_project_running(f"{project_name}_supabase"):
@@ -54,7 +58,12 @@ def start():
 
 def stop():
     """Stop the project."""
-    project_name = os.getenv('PROJECT_NAME', 'n8n_supabase_default')
+    project_name = os.getenv('PROJECT_NAME')
+    if not project_name:
+        print("Error: PROJECT_NAME not found in environment")
+        print("Please make sure you have a .env file with PROJECT_NAME defined")
+        print("You can create one by running: python -m script update_env")
+        return
     
     print("Stopping n8n services...")
     run_command([

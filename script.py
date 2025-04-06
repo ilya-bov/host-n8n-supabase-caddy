@@ -6,6 +6,8 @@ Run with `python -m main [command]` from the project root.
 
 import argparse
 import sys
+from pathlib import Path
+from dotenv import load_dotenv
 
 from scripts.generate_env_vars import generate_env_vars
 from scripts.update_env import update_env
@@ -15,6 +17,10 @@ from scripts.project_init import init, reset, update
 
 def main():
     """Main entry point for the script."""
+    # Load environment variables from .env file
+    env_path = Path('.') / '.env'
+    load_dotenv(dotenv_path=env_path)
+
     parser = argparse.ArgumentParser(description="Project management commands")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
