@@ -1,13 +1,40 @@
+import os
+import subprocess
+import json
 from scripts.utils import run_command
+
+def check_project_running(project_prefix):
+    """Check if containers with the given project prefix are running."""
+    try:
+        # List all containers in JSON format
+        result = subprocess.run(
+            ["docker", "ps", "--format", "{{.Names}}"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        container_names = result.stdout.strip().split('\n')
+        return any(project_prefix in name for name in container_names if name)
+    except subprocess.CalledProcessError:
+        return False
 
 def start():
     """Start the project."""
+    project_name = os.getenv('PROJECT_NAME', 'n8n_supabase_default')
+    
+    # Check if either n8n or supabase services are already running
+    if check_project_running(f"{project_name}_n8n") or check_project_running(f"{project_name}_supabase"):
+        print(f"\nProject '{project_name}' is already running!")
+        print("To stop it, run: python -m script stop")
+        print("To see running containers: docker ps")
+        return
+    
     # Start Supabase services with project name
     print("Starting Supabase...")
     run_command([
         "docker", "compose",
         "-f", "supabase/docker/docker-compose.yml",
-        "-p", "${PROJECT_NAME}_supabase",
+        "-p", f"{project_name}_supabase",
         "up", "-d"
     ])
 
@@ -15,7 +42,7 @@ def start():
     print("Starting n8n...")
     run_command([
         "docker", "compose",
-        "-p", "${PROJECT_NAME}_n8n",
+        "-p", f"{project_name}_n8n",
         "up", "-d"
     ])
 
@@ -27,10 +54,12 @@ def start():
 
 def stop():
     """Stop the project."""
+    project_name = os.getenv('PROJECT_NAME', 'n8n_supabase_default')
+    
     print("Stopping n8n services...")
     run_command([
         "docker", "compose",
-        "-p", "${PROJECT_NAME}_n8n",
+        "-p", f"{project_name}_n8n",
         "down"
     ], ignore_errors=True)
 
@@ -38,7 +67,7 @@ def stop():
     run_command([
         "docker", "compose",
         "-f", "supabase/docker/docker-compose.yml",
-        "-p", "${PROJECT_NAME}_supabase",
+        "-p", f"{project_name}_supabase",
         "down"
     ], ignore_errors=True)
 
