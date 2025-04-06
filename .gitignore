@@ -10,7 +10,6 @@
 /shared/
 
 # N8N specific
-/n8n/backup/*
 !/n8n/backup/.gitkeep
 
 # Logs
