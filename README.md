@@ -65,6 +65,7 @@ git config --global user.email "your.email@example.com"
 
    ```cmd
    git clone -b stable https://github.com/ilya-bov/host-n8n-supabase-caddy.git
+   cd host-n8n-supabase-caddy
    ```
 
 3. **Create and activate virtual environment**
