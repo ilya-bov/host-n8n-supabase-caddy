@@ -63,9 +63,11 @@ git config --global user.email "your.email@example.com"
 1. **Clone the repository**
 
 
-   ```git clone -b stable https://github.com/ilya-bov/host-n8n-supabase-caddy.git```
+   ```cmd
+   git clone -b stable https://github.com/ilya-bov/host-n8n-supabase-caddy.git
+   ```
 
-2. **Create and activate virtual environment**
+3. **Create and activate virtual environment**
    
    Windows:
    ```cmd
@@ -79,7 +81,7 @@ git config --global user.email "your.email@example.com"
    source venv/bin/activate
    ```
 
-3. **Install dependencies**
+4. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
